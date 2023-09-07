@@ -34,6 +34,7 @@ pub struct Config {
 }
 
 pub fn get() -> Config {
+    // If LOCAL_RUN is set, load .env file
     if !env::var("LOCAL_RUN").is_err() {
         use dotenv::dotenv;
 

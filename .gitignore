@@ -1,5 +1,8 @@
 # global
 *.env
 
+# configs
+configs/rabbitmq/scripts/generate_pass.py
+
 # scrapper and rust
 scrapper/target

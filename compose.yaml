@@ -1,16 +1,20 @@
 services:
   rabbit:
-    hostname: rabbit
-    image: rabbitmq:3.11.7-management-alpine
+    build:
+      context: .
+      dockerfile: configs/rabbitmq/Dockerfile
+      args:
+        RABBITMQ_ADMIN_USER: "admin"
+        RABBITMQ_ADMIN_PASSWORD: "password"
+        RABBITMQ_GUEST_USER: "guest"
+        RABBITMQ_GUEST_PASSWORD: "guest"
     ports:
       - "15672:15672"
       - "5672:5672"
-    environment:
-      RABBITMQ_DEFAULT_USER: "user"
-      RABBITMQ_DEFAULT_PASS: "password"
+    restart: always
     healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 5s
+      test: rabbitmq-diagnostics -q status && rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
       timeout: 5s
       retries: 5
 
