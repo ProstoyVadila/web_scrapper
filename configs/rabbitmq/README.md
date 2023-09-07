@@ -4,6 +4,8 @@
 
 To create users and set permissions, you need to add them to the [definitions.sjon](conf/definitions.json) file.
 
+and update [init.sh](scripts/init.sh) and [Dockerfile](Dockerfile) files with the new users.
+
 ```json
   "users": [
     {
@@ -45,6 +47,8 @@ To create queues, you need to add them to the [definitions.sjon](conf/definition
     }
 ],
 ```
+
+## Manual user creation
 
 For a manual user creation.
 Generate a password's hash for the rabbitmq management user:
