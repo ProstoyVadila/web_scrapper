@@ -1,0 +1,5 @@
+# global
+*.env
+
+# scrapper and rust
+scrapper/target

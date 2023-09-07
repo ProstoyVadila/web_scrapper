@@ -1,0 +1,33 @@
+services:
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3.11.7-management-alpine
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "user"
+      RABBITMQ_DEFAULT_PASS: "password"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  scrapper:
+    build:
+      context: .
+      dockerfile: scrapper/Dockerfile
+    # ports:
+    #   - "8000:80"
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    environment:
+      RABBITMQ_USER: "user"
+      RABBITMQ_PASSWORD: "password"
+      RABBITMQ_HOST: "rabbit"
+      RABBITMQ_PORT: 5672
+      REDIS_SSL: "false"
+      LOG_LEVEL: "DEBUG"
+      RUST_LOG: "trace"
