@@ -6,12 +6,18 @@ use std::env;
 
 #[derive(Debug, Envconfig)]
 pub struct RabbitMQ {
-    #[envconfig(from = "RABBITMQ_USER")]
-    pub address: String,
-    #[envconfig(from = "RABBITMQ_PASSWORD")]
+    #[envconfig(from = "RABBITMQ_ADMIN_USER")]
+    pub user: String,
+    #[envconfig(from = "RABBITMQ_ADMIN_PASSWORD")]
     pub password: String,
     #[envconfig(from = "RABBITMQ_HOST")]
     pub host: String,
+    #[envconfig(from = "RABBITMQ_VHOST")]
+    pub vhost: String,
+    // #[envconfig(from = "RABBITMQ_QUEUE_NAMES")]
+    // pub queue_names: [String],
+    // #[envconfig(from = "RABBITMQ_EXCHANGE_NAMES")]
+    // pub exchange_names: [String],
     #[envconfig(from = "RABBITMQ_PORT")]
     pub port: u16,
 }
@@ -20,7 +26,7 @@ impl RabbitMQ {
     pub fn get_url(&self) -> String {
         format!(
             "amqp://{}:{}@{}:{}",
-            self.address, self.password, self.host, self.port
+            self.user, self.password, self.host, self.port
         )
     }
 }
