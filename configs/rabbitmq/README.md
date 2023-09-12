@@ -58,3 +58,42 @@ Generate a password's hash for the rabbitmq management user:
 ```
 
 Add password's hash and username to the [definitions.sjon](conf/definitions.json) file.
+
+```json
+    "exchange": [
+      {
+        "name": "urls_to_crawl_exchange",
+        "vhost": "/",
+        "type": "direct",
+        "durable": true,
+        "auto_delete": false,
+        "internal": false,
+        "arguments": {}
+      },
+      {
+        "name": "html_to_parse_exchange",
+        "vhost": "/",
+        "type": "direct",
+        "durable": true,
+        "auto_delete": false,
+        "internal": false,
+        "arguments": {}
+      }
+    ],
+    "queues": [
+      {
+        "name": "urls_to_crawl_queue",
+        "vhost": "/",
+        "durable": true,
+        "auto_delete": false,
+        "arguments": {}
+      },
+      {
+        "name": "html_to_parse_queue",
+        "vhost": "/",
+        "durable": true,
+        "auto_delete": false,
+        "arguments": {}
+      }
+    ]
+```

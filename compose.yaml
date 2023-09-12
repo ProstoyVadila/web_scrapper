@@ -28,8 +28,9 @@ services:
       rabbit:
         condition: service_healthy
     environment:
-      RABBITMQ_USER: "user"
-      RABBITMQ_PASSWORD: "password"
+      RABBITMQ_ADMIN_USER: "admin"
+      RABBITMQ_ADMIN_PASSWORD: "password"
+      RABBITMQ_VHOST: "/"
       RABBITMQ_HOST: "rabbit"
       RABBITMQ_PORT: 5672
       REDIS_SSL: "false"

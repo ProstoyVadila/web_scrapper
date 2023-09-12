@@ -20,23 +20,14 @@
       "configure": ".*",
       "write": ".*",
       "read": ".*"
-    }
-  ],
-  "vhosts": [{ "name": "/" }],
-  "queues": [
-    {
-      "name": "urls_to_crawl_queue",
-      "vhost": "/",
-      "durable": true,
-      "auto_delete": false,
-      "arguments": {}
     },
     {
-      "name": "html_to_parse_queue",
+      "user": "guest",
       "vhost": "/",
-      "durable": true,
-      "auto_delete": false,
-      "arguments": {}
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
     }
-  ]
+  ],
+  "vhosts": [{ "name": "/" }]
 }
