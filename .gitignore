@@ -1,5 +1,4 @@
 # ide
-*.code-workspace
 .vscode/
 
 # global
