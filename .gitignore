@@ -7,8 +7,11 @@
 
 # configs
 
-# scrapper and rust
+# Scrapper and Rust
 scrapper/target
 
-# scheduler and python
+# Scheduler and Python
 __pycache__/
+
+# Proxy_manager and Go
+proxy_manager/bin
