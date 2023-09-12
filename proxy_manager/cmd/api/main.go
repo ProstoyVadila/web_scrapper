@@ -1,18 +1,17 @@
 package main
 
 import (
-	"fmt"
+	"proxy_manager/internal/conf"
 
-	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		fmt.Println("ping")
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run(":8080")
+	config := conf.New()
+	conf.InitLogger(config)
+
+	log.Debug().Interface("config", config).Msg("Config")
+
+	server := New(config)
+	server.ListenAndServe()
 }
