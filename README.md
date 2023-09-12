@@ -2,9 +2,17 @@
 
 ## Description
 
-This is a web scrapper based on microservices architecture. It is designed to be scalable, fast, manageable via API and work around the clock.
+This is a web scrapper based on microservices architecture. It is designed to be scalable, fast, manageable via API and work around the clock. The main idea behind this scrapper is to get a lot of persistent data from websites on a daily basis. It's not suitable for one-time scrapping.
 
-The only reason why I used three different languages is because I wanted to practice them and to get acquainted with their popular frameworks. And, of course, ~~to show off~~ to challenge myself. In real-world projects, I would prefer to use only one.
+### Why microservices?
+
+I chose microservices architecture because it's scalable. It's easy to add new services and scale them independently. For example, if we need to crawl sites faster, we can just add more Scrapper instances. If we need to add new functionality, we can just add new services (for example, services to transform and load data to get a whole ETL process).
+
+### Why Python, Rust and Go?
+
+The only reason why I used three different languages in this project is because I wanted to practice them and to get acquainted with their popular frameworks. And, of course, ~~to show off~~ to challenge myself. In real-world projects, I would definitely prefer to use only one.
+
+The main idea is to use a language that is suitable for the task. For example, I used Python for Scheduler because it's easy to write and it's not the most performance-critical part of the project. I used Rust for Scrapper because it's fast and works fine under high load (this service's performance is the most crucial). I used Go for Proxy Manager because it's fast and easy to write and maintain.
 
 ## Structure:
 
@@ -65,7 +73,7 @@ Request:
 }
 ```
 
-GET `/expired` - to get the list of sites with expires xpaths
+GET `/expired` - to get the list of all sites with expires xpaths
 
 Response:
 
@@ -82,6 +90,21 @@ Response:
     },
     ...
 ]
+```
+
+GET `/expired/{id}` - to get site with expires xpaths by id
+Response:
+
+```
+    {
+        "id": "1",
+        "url": "https://www.example.com",
+        "expired_xpaths": {
+            "title": "//title/text()",
+            "description": "//meta[@name='description']/@content",
+            "keywords": "//meta[@name='keywords']/@content"
+        }
+    },
 ```
 
 ### Scrapper
