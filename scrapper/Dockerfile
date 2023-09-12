@@ -1,3 +1,6 @@
+# Found this pretty nice Dockerfile on github (todo add a link). The size is extremly slow and the file doesn't look too sophisticated.
+# TODO: don't forget to add additinal dependencies for your project.
+
 FROM rust:1.72.0-alpine3.17 as builder
 # This is important, see https://github.com/rust-lang/docker-rust/issues/85
 ENV RUSTFLAGS="-C target-feature=-crt-static"
