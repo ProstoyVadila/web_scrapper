@@ -1,4 +1,19 @@
 services:
+  postgres:
+    build:
+      context: .
+      dockerfile: configs/postgres/Dockerfile
+      args:
+        POSTGRES_DB: "scrapped_data"
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "scrapped_data"
+      POSTGRES_PORT: 5432
+
   redis:
     image: redis:7.2.1-alpine3.17
     ports:

@@ -3,6 +3,7 @@
 
 # global
 *.env
+test-compose.yaml
 
 # configs
 
