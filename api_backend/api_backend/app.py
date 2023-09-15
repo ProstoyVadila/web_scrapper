@@ -1,43 +1,34 @@
-import asyncio
 from loguru import logger
-
-from aiormq import AMQPConnectionError
-from fastapi import FastAPI, BackgroundTasks
-
+from fastapi import FastAPI, BackgroundTasks, Request
 
 from models import Site
-from broker import rabbit_broker, AMQP_CONNECTION_ERROR_INTERVAL
+from broker import rabbit_broker, init_broker
 from actions import process_new_site, process_new_sites
+from database import db
 
 
 app = FastAPI(
-    title="Scheduler",
+    title="API Backend",
     version="0.0.1",
-    description="Scheduler service manages the whole crawling process",
+    description="API Backend to set up sites to parse and check their statuses",
     # lifespan=rabbit_router.lifespan_context,
 )
 
 
 @app.on_event("startup")
 async def on_startup():
-    logger.info("Starting scheduler's worker")
-    while True:
-        try:
-            await rabbit_broker.connect()
-            break
-        except AMQPConnectionError:
-            logger.error("RabbitMQ is not ready, retrying in 5 seconds")
-            await asyncio.sleep(AMQP_CONNECTION_ERROR_INTERVAL)
-        # TODO: fix this
-        except KeyboardInterrupt:
-            logger.info("Stopping scheduler")
-            break
+    logger.info("Starting api backend's worker")
+    await db.connect()
+    app.state.db = db
+    await init_broker()
 
 
 @app.on_event("shutdown")
 async def on_shutdown():
-    logger.info("Stopping scheduler's worker")
+    logger.info("Stopping api backend's worker")
     await rabbit_broker.close()
+    if app.state.db:
+        await app.state.db.close()
 
 
 @app.get("/ping")
