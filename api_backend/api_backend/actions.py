@@ -22,10 +22,5 @@ async def process_new_site(site: Site):
 async def process_new_sites(sites: list[Site]):
     logger.info("add sites to queue and database", sites)
     for site in sites:
-        await rabbit_broker.publish(
-            exchange=URLS_TO_CRAWL_EXCHANGE,
-            queue=URLS_TO_CRAWL_QUEUE,
-            message=site.json(),
-            persist=True,
-        )
+        await process_new_site(site)
     # await add_sites(sites)
