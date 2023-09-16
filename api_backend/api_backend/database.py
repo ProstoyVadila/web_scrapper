@@ -1,4 +1,5 @@
 import asyncpg
+import orjson
 from loguru import logger
 
 from config import PostgresConfig
@@ -76,37 +77,92 @@ def transaction_wrapper(db: Database):
     return wrapper
 
 
-async def save_site_in_transaction(con, site: SiteIn):
+async def get_site_by_domain(con, domain: str):
+    query = """
+        SELECT * FROM sites WHERE domain = $1
+    """
+    site = await con.fetchrow(query, domain)
+    if not site:
+        return
+    return SiteModel(**dict(site))
+
+
+async def get_page_by_url(con, url: str):
+    query = """
+        SELECT * FROM pages WHERE url = $1
+    """
+    data = await con.fetchrow(query, url)
+    if not data:
+        return
+    page = dict(data)
+    page["xpaths"] = orjson.loads(page["xpaths"])
+    return PageModel(**page)
+
+
+# async def get_site_info(con, siteIn):
+#     site = await get_site_by_domain(con, siteIn.domain)
+#     if not site:
+#         return
+#     return SiteModel(**site)
+
+
+async def save_site(con, site: SiteModel) -> SiteModel:
+    site = await con.fetchrow(
+        """
+        INSERT INTO sites (id, domain, created_at) VALUES ($1 , $2, $3) returning *
+        """,
+        site.id,
+        site.domain,
+        site.created_at,
+    )
+    logger.debug(f"saved site {site}")
+    return SiteModel(**dict(site))
+
+
+async def save_page(con, page: PageModel) -> PageModel:
+    data = await con.fetchrow(
+        """
+        INSERT INTO pages (
+            id, site_id, url, created_at, updated_at,
+            status, is_pagination, refresh_interval,
+            refresh_at, last_refresh, xpaths)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *
+        """,
+        page.id,
+        page.site_id,
+        page.url,
+        page.created_at,
+        page.updated_at,
+        page.status,
+        page.is_pagination,
+        page.refresh_interval,
+        page.refresh_at,
+        page.last_refresh_at,
+        page.xpaths_json,
+    )
+    logger.debug(f"saved page {data}")
+    data = dict(data)
+    data["xpaths"] = orjson.loads(data["xpaths"])
+    return PageModel(**data)
+
+
+async def save_site_in_transaction(con, site: SiteIn) -> PageModel:
     site, page = convert_site_in(site)
     async with con.transaction():
-        await con.execute(
-            """
-            INSERT INTO sites (id, domain, created_at) VALUES ($1 , $2, $3)
-            """,
-            site.id,
-            site.domain,
-            site.created_at,
-        )
-        return await con.execute(
-            """
-            INSERT INTO pages (
-                id, site_id, url, created_at, updated_at,
-                status, is_pagination, refresh_interval,
-                refresh_at, last_refresh, xpaths)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning *
-            """,
-            page.id,
-            page.site_id,
-            page.url,
-            page.created_at,
-            page.updated_at,
-            page.status,
-            page.is_pagination,
-            page.refresh_interval,
-            page.refresh_at,
-            page.last_refresh_at,
-            page.xpaths_json,
-        )
+        page_from_db = await get_page_by_url(con, page.url)
+        if page_from_db:
+            return
+
+        site_from_db = await get_site_by_domain(con, site.domain)
+        if site_from_db:
+            site.id = site_from_db.id
+            page.site_id = site_from_db.id
+
+        if not site_from_db:
+            await save_site(con, site)
+
+        page = await save_page(con, page)
+        return page
 
 
 db = Database(PostgresConfig())

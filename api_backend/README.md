@@ -1,5 +1,12 @@
 ### API Backend
 
+## TODO
+
+- [ ] split models to web and db models
+- [ ] refactor database logic to table classes
+- [ ] fix logging (add loguru as main logger and configure it)
+- [ ] Add tests
+
 #### Using standard asyncio queue for long running process
 
 ````python

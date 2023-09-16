@@ -19,11 +19,15 @@ async def process_new_site(site: SiteIn, db: Database):
 
         logger.info("add site %s to database", site.url)
         async with db._con_pool.acquire() as con:
-            await save_site_in_transaction(con, site)
-            return site
+            res = await save_site_in_transaction(con, site)
+            if not res:
+                raise UniqueViolationError
+            return res
+
     except UniqueViolationError as exc:
         logger.exception(exc)
         raise HTTPException(400, "Site already added")
+
     except Exception as exc:
         logger.exception(exc)
         raise HTTPException(400, "Bad Request")

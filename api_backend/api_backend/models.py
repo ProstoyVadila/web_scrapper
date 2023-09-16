@@ -35,12 +35,6 @@ class SiteOut(SiteIn):
     pass
 
 
-class SiteModel(BaseModel):
-    id: UUID
-    domain: str
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
-
-
 class PageModel(BaseModel):
     id: Optional[UUID] = Field(default_factory=uuid4)
     site_id: UUID
@@ -57,6 +51,13 @@ class PageModel(BaseModel):
     @property
     def xpaths_json(self):
         return orjson.dumps(self.xpaths).decode("utf-8")
+
+
+class SiteModel(BaseModel):
+    id: UUID
+    domain: str
+    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    # pages: Optional[PageModel] = []
 
 
 def convert_site_in(site_in: SiteIn) -> (SiteModel, PageModel):
