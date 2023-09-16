@@ -1,12 +1,12 @@
 from loguru import logger
-from fastapi import FastAPI, BackgroundTasks, Request
+from fastapi import FastAPI, BackgroundTasks, Request, APIRouter, HTTPException
 
-from models import Site
+from models import SiteIn
 from broker import rabbit_broker, init_broker
 from actions import process_new_site, process_new_sites
 from database import db
 
-
+router = APIRouter()
 app = FastAPI(
     title="API Backend",
     version="0.0.1",
@@ -36,14 +36,19 @@ async def ping():
     return {"message": "pong"}
 
 
-@app.post("/site")
-async def add_site(site: Site, background_tasks: BackgroundTasks):
+@router.post("/site")
+async def add_site(req: Request, site: SiteIn):
     logger.info("add site {} to queue".format(site.url))
-    background_tasks.add_task(process_new_site, site)
-    return {"message": "add site {} to queue and database".format(site.url)}
+    site_out = await process_new_site(site, req.app.state.db)
+    return site_out
 
 
-@app.post("/sites")
-async def add_sites(sites: list[Site], background_tasks: BackgroundTasks):
-    background_tasks.add_task(process_new_sites, sites)
-    return {"message": "add sites to queue and database"}
+@router.post("/sites")
+async def add_sites(
+    req: Request, sites: list[SiteIn], background_tasks: BackgroundTasks
+):
+    background_tasks.add_task(process_new_sites, sites, req.app.state.db)
+    return {"data": "add sites to queue and database"}
+
+
+app.include_router(router, prefix="/api/v1")
