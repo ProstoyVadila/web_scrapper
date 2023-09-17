@@ -16,96 +16,19 @@ The main idea is to use a language that is suitable for the task. For example, I
 
 ## Structure:
 
+![Structure](/configs/Untitled-2023-09-04-1617.png)
+
+- **api_backend:** responsible for adding new sites to scrapping process and getting the status of the task
 - **scheduler:** responsible for scheduling the tasks
 - **scrapper:** responsible for scrapping the data from websites
 - **extractor:** responsible for parsing the data
 - **proxy_manager:** responsible for managing the proxies for scrapper
-- **db:** responsible for storing the data
+- **db:** responsible for storing the parsed data
+- **rabbitmq:** responsible for communication between services
 
 ### Scheduler
 
 This service is responsible for scheduling the tasks for Scrapper. It is written in Python using FastAPI framework. It sets values to RabbitMQ queue for Scrapper and stores them in Postgres. Scheduler manages routine tasks to refresh the data from the websites as well.
-
-It has a few endpoints which accept a JSON object with the following structure:
-
-POST `/site` - to add a single site to scrapping process and returns the site id
-
-Request:
-
-```json
-{
-  "url": "https://www.example.com",
-  "refresh_interval": "600", // in seconds
-  "xpaths": {
-    "title": "//title/text()",
-    "description": "//meta[@name='description']/@content",
-    "keywords": "//meta[@name='keywords']/@content"
-  }
-}
-```
-
-POST `/sites` - to add multiple sites to the queue and returns the list of site ids
-
-Request:
-
-```json
-[
-    {
-        "url": "https://www.example.com",
-        "refresh_interval": "600", // in seconds
-        "xpaths": {
-            "title": "//title/text()",
-            "description": "//meta[@name='description']/@content",
-            "keywords": "//meta[@name='keywords']/@content"
-        }
-    },
-    ...
-]
-```
-
-GET `/sites/{id}` - to get the status of the task by id
-
-Request:
-
-```json
-{
-  "id": "1"
-}
-```
-
-GET `/expired` - to get the list of all sites with expires xpaths
-
-Response:
-
-```json
-[
-    {
-        "id": "1",
-        "url": "https://www.example.com",
-        "expired_xpaths": {
-            "title": "//title/text()",
-            "description": "//meta[@name='description']/@content",
-            "keywords": "//meta[@name='keywords']/@content"
-        }
-    },
-    ...
-]
-```
-
-GET `/expired/{id}` - to get site with expires xpaths by id
-Response:
-
-```
-    {
-        "id": "1",
-        "url": "https://www.example.com",
-        "expired_xpaths": {
-            "title": "//title/text()",
-            "description": "//meta[@name='description']/@content",
-            "keywords": "//meta[@name='keywords']/@content"
-        }
-    },
-```
 
 ### Scrapper
 
