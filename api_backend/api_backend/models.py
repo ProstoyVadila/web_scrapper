@@ -5,16 +5,19 @@ from enum import Enum
 
 import orjson
 from pydantic import BaseModel, Field, AnyHttpUrl
+import borsh
 
 from utils import is_valid_uuid
 
 
 class ParseStatus(str, Enum):
     PENDING = "pending"
-    SCRAPPING_SUCCESS = "scrapping_success"
-    SCRAPPING_ERROR = "scrapping_error"
-    PARSING_SUCCESS = "parsing_success"
-    PARSING_ERROR = "parsing_error"
+    SCRAPPER_PROCESSING = "scrapper_processing"
+    SCRAPPER_DONE = "scrapper_done"
+    SCRAPPER_ERROR = "scrapper_error"
+    PARSER_PROCESSING = "parser_processing"
+    PARSER_SUCCESS = "parser_done"
+    PARSER_ERROR = "parser_error"
 
     def get(self, status: str):
         return self.__members__.get(status.upper())
@@ -29,6 +32,45 @@ class SiteIn(BaseModel):
     refresh_interval: Optional[int] = 0
     refresh_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     last_refresh_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+
+    @property
+    def _borsh_schema(self):
+        return borsh.schema(
+            {
+                "id": borsh.types.string,
+                "url": borsh.types.string,
+                "status": borsh.types.string,
+                "xpaths": borsh.types.hashmap(borsh.types.string, borsh.types.string),
+                "is_pagination": borsh.types.bool,
+                "refresh_interval": borsh.types.u64,
+                "refresh_at": borsh.types.string,
+                "last_refresh_at": borsh.types.string,
+            }
+        )
+
+
+def into_borsh(data: dict) -> bytes:
+    schema = borsh.schema(
+        {
+            "url": borsh.types.string,
+            # "status": borsh.types.string,
+            # "xpaths": borsh.types.hashmap(borsh.types.string, borsh.types.string),
+        }
+    )
+    return borsh.serialize(schema, data)
+
+
+class TestSite(BaseModel):
+    url: str
+    # status: Optional[ParseStatus] = ParseStatus.PENDING
+    # xpaths: Optional[dict]
+
+    @property
+    def _borsh_schema(self):
+        return
+
+    def into_borsh(self) -> bytes:
+        return borsh.serialize(self._borsh_schema, self.dict())
 
 
 class SiteOut(SiteIn):

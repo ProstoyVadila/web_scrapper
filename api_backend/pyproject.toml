@@ -16,6 +16,7 @@ propan = {extras = ["async-rabbit"], version = "^0.1.5.23"}
 uvicorn = "^0.23.2"
 fastapi-utils = "^0.2.1"
 asyncpg = "^0.28.0"
+borsh-python = "^0.1.5"
 
 
 [build-system]

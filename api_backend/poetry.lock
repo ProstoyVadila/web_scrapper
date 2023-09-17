@@ -123,6 +123,17 @@ docs = ["Sphinx (>=5.3.0,<5.4.0)", "sphinx-rtd-theme (>=1.2.2)", "sphinxcontrib-
 test = ["flake8 (>=5.0,<6.0)", "uvloop (>=0.15.3)"]
 
 [[package]]
+name = "borsh-python"
+version = "0.1.5"
+description = "A Borsh library for Python 3."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "borsh-python-0.1.5.tar.gz", hash = "sha256:88e0d6e481518c362c81069a8ce784cd9b9f2b15b16afb5b201fc52b746ea15e"},
+]
+
+[[package]]
 name = "click"
 version = "8.1.7"
 description = "Composable command line interface toolkit"
@@ -932,4 +943,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "fd9b42c3dede8f57d660e19648e972f2db87d3424f2fb79f2f32a75feafabff4"
+content-hash = "964ed0fab6953363bbf7c3d21a74479bd5f77049021c864fd0af4ab4c49f64d6"
