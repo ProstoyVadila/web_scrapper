@@ -7,10 +7,16 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1.32.0", features = ["full"] }
-amqprs = { version = "1.4.1", features = ["tokio-rustls"] }
 log = "0.4"
 pretty_env_logger = "0.4"
 reqwest = "0.11.20"
 futures = "0.3.28"
 envconfig = "0.10.0"
 dotenv = "0.15.0"
+crosstown_bus = "0.6.0"
+borsh = "0.9.3"
+borsh-derive = "0.9.1"
+uuid = { version = "1.4.1", features = ["v4", "borsh"] }
+chrono = "0.4.31"
+strum = "0.25"
+strum_macros = "0.25"

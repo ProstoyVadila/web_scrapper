@@ -6,6 +6,10 @@ To create users and set permissions, you need to add them to the [definitions.sj
 
 and update [init.sh](scripts/init.sh) and [Dockerfile](Dockerfile) files with the new users.
 
+## TODO:
+
+- [ ] figure out how to configure users and permissions from the rabbitmq container
+
 ```json
   "users": [
     {

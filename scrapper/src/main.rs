@@ -6,6 +6,7 @@ use std::error::Error;
 use tokio;
 
 mod config;
+mod models;
 mod rabbit;
 mod requests;
 
@@ -18,6 +19,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let config = config::get();
     debug!("Config loaded: {:?}", config);
 
+    info!("Initializing rabbit listener");
+    rabbit::init_listener(config.rabbit).await;
     // info!("Creating requests client");
     // let client = requests::Requests::new();
 
@@ -25,6 +28,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // let bodies = client.get_from_urls(urls).await;
     // println!("{:?}", bodies);
-    rabbit::consume(&config).await?;
+    loop {
+        
+    }
     Ok(())
 }

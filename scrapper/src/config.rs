@@ -5,7 +5,7 @@ use envconfig::Envconfig;
 use std::env;
 
 #[derive(Debug, Envconfig)]
-pub struct RabbitMQ {
+pub struct ConfigRabbitMQ {
     #[envconfig(from = "RABBITMQ_ADMIN_USER")]
     pub user: String,
     #[envconfig(from = "RABBITMQ_ADMIN_PASSWORD")]
@@ -22,7 +22,7 @@ pub struct RabbitMQ {
     pub port: u16,
 }
 
-impl RabbitMQ {
+impl ConfigRabbitMQ {
     pub fn get_url(&self) -> String {
         format!(
             "amqp://{}:{}@{}:{}",
@@ -34,7 +34,7 @@ impl RabbitMQ {
 #[derive(Debug, Envconfig)]
 pub struct Config {
     #[envconfig(nested = true)]
-    pub rabbit: RabbitMQ,
+    pub rabbit: ConfigRabbitMQ,
     #[envconfig(from = "LOG_LEVEL")]
     pub log_level: String,
 }
