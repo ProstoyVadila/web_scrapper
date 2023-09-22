@@ -28,5 +28,4 @@ func main() {
 	log.Info().Msg("Starting cron scheduler")
 	s := scheduler.New(conf, redis)
 	s.Start()
-
 }

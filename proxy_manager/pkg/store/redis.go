@@ -30,6 +30,8 @@ func NewRedis(ctx context.Context, conf *config.Config) *Redis {
 		Password: conf.RedisPassword,
 	}
 	redisClient := redis.NewClient(redisOptions)
+
+	log.Debug().Msg("Configuring redis locker")
 	locker, err := redislock.NewRedisLocker(redisClient, redislock.WithTries(10))
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create redis locker")

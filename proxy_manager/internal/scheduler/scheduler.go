@@ -1,9 +1,12 @@
 package scheduler
 
 import (
+	"os"
+	"os/signal"
 	"proxy_manager/internal/config"
 	"proxy_manager/pkg/models"
 	"proxy_manager/pkg/store"
+	"syscall"
 	"time"
 
 	"github.com/go-co-op/gocron"
@@ -21,7 +24,7 @@ func New(conf *config.Config, store *store.Redis) *Scheduler {
 	cron := gocron.NewScheduler(time.UTC)
 	cron.WithDistributedLocker(*store.Locker)
 	return &Scheduler{
-		Cron:       gocron.NewScheduler(time.UTC),
+		Cron:       cron,
 		Store:      store,
 		Config:     conf,
 		localStore: make(map[string]*models.Identity),
@@ -29,13 +32,35 @@ func New(conf *config.Config, store *store.Redis) *Scheduler {
 }
 
 func (s *Scheduler) Start() {
-	for {
-		if err := s.Store.Ping(); err != nil {
-			log.Error().Err(err).Msg("Failed to ping storage. Retrying in 5 seconds")
-			time.Sleep(5 * time.Second)
-			continue
-		}
-		break
+	go s.onExit()
+	s.Cron.StartBlocking()
+}
+
+func (s *Scheduler) Stop() {
+	s.Store.Close()
+	s.Cron.Stop()
+}
+
+func (s *Scheduler) AddTask(t *models.Task) {
+	s.Cron.Every(t.Interval).Name(t.Name).Do(t.Func)
+}
+
+func (s *Scheduler) AddTasks(tasks []*models.Task) {
+	for _, t := range tasks {
+		s.AddTask(t)
 	}
-	s.Cron.StartAsync()
+}
+
+func (s *Scheduler) RemoveTask(name string) {
+	s.Cron.RemoveByTag(name)
+}
+
+func (s *Scheduler) onExit() {
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, os.Interrupt, syscall.SIGTERM)
+
+	<-exitSignal
+	log.Info().Msg("Shutting down proxy manager")
+	s.Stop()
+	os.Exit(0)
 }
