@@ -1,9 +1,12 @@
 package routines
 
-import "proxy_manager/pkg/models"
+import (
+	"proxy_manager/internal/scheduler"
+	"proxy_manager/pkg/models"
+)
 
 type Routine interface {
-	Run()
+	Run(s *scheduler.Scheduler)
 }
 
 type GetProxiesTask struct {
@@ -11,5 +14,5 @@ type GetProxiesTask struct {
 	Source string
 }
 
-func (g *GetProxiesTask) Run() {
+func (g *GetProxiesTask) Run(s *scheduler.Scheduler) {
 }
