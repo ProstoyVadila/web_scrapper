@@ -21,7 +21,7 @@ create table if not exists pages (
     refresh_at timestamp not null default now(),
     last_refresh timestamp not null default now(),
     xpaths json not null default '{}'::json,
-    expired boolean not null default false,
+    expired boolean not null default false
 );
 
 create table if not exists pagination_events (
