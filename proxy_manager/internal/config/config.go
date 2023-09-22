@@ -1,6 +1,7 @@
-package conf
+package config
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/rs/zerolog"
@@ -8,8 +9,6 @@ import (
 )
 
 type Config struct {
-	GinMode       string `env:"GIN_MODE" envDefault:"debug" mapstructure:"GIN_MODE"`
-	LogLevel      string `env:"LOG_LEVEL" envDefault:"debug" mapstructure:"LOG_LEVEL"`
 	RedisHost     string `env:"REDIS_HOST" envDefault:"redis" mapstructure:"REDIS_HOST"`
 	RedisPassword string `env:"REDIS_PASSWORD" envDefault:"" mapstructure:"REDIS_PASSWORD"`
 	RedisPort     string `env:"REDIS_PORT" envDefault:"6379" mapstructure:"REDIS_PORT"`
@@ -30,10 +29,17 @@ func New() (config *Config) {
 	return
 }
 
-func InitLogger(config *Config) {
-	// logLevel, err := zerolog.ParseLevel(config.LogLevel)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+func (c *Config) RedisAddr() string {
+	return fmt.Sprintf("%s:%s", c.RedisHost, c.RedisPort)
+}
+
+func InitLogger(logLevel string) {
+	if logLevel == "" {
+		logLevel = "debug"
+	}
+	level, err := zerolog.ParseLevel(logLevel)
+	if err != nil {
+		log.Fatal(err)
+	}
+	zerolog.SetGlobalLevel(level)
 }

@@ -1,9 +1,9 @@
 
 run:
-	@go run ./cmd/api
+	@LOG_LEVEL=debug go run ./cmd/app
 
 build:
-	@go build -o bin/main ./cmd/api
+	@go build -o bin/main ./cmd/app
 
 tests:
 	@go test -v -cover ./...
