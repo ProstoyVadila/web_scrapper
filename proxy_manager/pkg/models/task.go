@@ -1,15 +1,22 @@
 package models
 
-type Task struct {
-	Interval string
-	Name     string
-	Func     func()
+type Task interface {
+	SetFunc(f func())
 }
 
-func NewTask(interval, name string, fn func()) *Task {
-	return &Task{
+type TemplateTask struct {
+	Func     func()
+	Interval string
+	Name     string
+}
+
+func NewTask(name, interval string) *TemplateTask {
+	return &TemplateTask{
 		Interval: interval,
 		Name:     name,
-		Func:     fn,
 	}
+}
+
+func (t *TemplateTask) SetFunc(f func()) {
+	t.Func = f
 }

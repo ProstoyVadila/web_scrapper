@@ -1,18 +1,17 @@
 package models
 
 import (
-	"encoding/json"
+	"bytes"
+	"crypto/md5"
+	"fmt"
 	"reflect"
-
-	"github.com/rs/zerolog/log"
 )
 
 type Identity struct {
-	Headers  Headers
-	Addr     string
-	Password string
-	Hash     string
-	Expiry   int64
+	Proxy *Proxy
+	// Headers Headers
+	Hash   string
+	Expiry int64
 }
 
 type Headers struct {
@@ -22,13 +21,13 @@ type Headers struct {
 	Device         string `json:"device"`
 }
 
-func NewIdentity(addr, password, headers, hash string) *Identity {
+func NewIdentity(proxy *Proxy, expiry int64) *Identity {
 	identity := &Identity{
-		Addr:     addr,
-		Password: password,
-		Hash:     hash,
+		Proxy:  proxy,
+		Expiry: expiry,
 	}
-	identity.SetHeaders(headers)
+	// identity.SetHeaders(headers)
+	identity.setHash()
 	return identity
 }
 
@@ -36,18 +35,49 @@ func NewHeaders(headers string) *Headers {
 	return &Headers{}
 }
 
-func (i *Identity) SetHeaders(headers string) {
-	err := json.Unmarshal([]byte(headers), &i.Headers)
-	if err != nil {
-		log.Err(err).Msg("Failed to unmarshal headers")
-	}
+func (i *Identity) String() string {
+	return fmt.Sprintf(
+		"IP: %s, Port: %d, Hash: %s Expity: %d",
+		i.Proxy.IP,
+		i.Proxy.Port,
+		i.Hash,
+		i.Expiry,
+	)
 }
 
+// Fields returns field names of the structure
 func (i *Identity) Fields() []string {
+	fields := make([]string, 0)
+	r := reflect.ValueOf(i).Elem()
+	for i := 0; i < r.NumField(); i++ {
+		fields = append(fields, r.Type().Field(i).Name)
+	}
+	return fields
+}
+
+// Values returns field values of the structure
+func (i *Identity) Values() []string {
 	values := make([]string, 0)
 	r := reflect.ValueOf(i).Elem()
 	for i := 0; i < r.NumField(); i++ {
 		values = append(values, r.Field(i).String())
 	}
 	return values
+}
+
+func (i *Identity) bytes() []byte {
+	buf := bytes.Buffer{}
+	for _, value := range i.Values() {
+		buf.WriteString(value)
+	}
+	return buf.Bytes()
+}
+
+func (i *Identity) hash() string {
+	hash := md5.Sum(i.bytes())
+	return fmt.Sprintf("%x", hash)
+}
+
+func (i *Identity) setHash() {
+	i.Hash = i.hash()
 }

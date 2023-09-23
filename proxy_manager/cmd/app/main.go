@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"proxy_manager/internal/config"
+	"proxy_manager/internal/routines"
 	"proxy_manager/internal/scheduler"
 	"proxy_manager/pkg/store"
 
@@ -26,6 +27,11 @@ func main() {
 	redis := store.NewRedis(ctx, conf)
 
 	log.Info().Msg("Starting cron scheduler")
-	s := scheduler.New(conf, redis)
+	s := scheduler.New(conf, redis, ctx)
+
+	log.Info().Msg("Adding tasks")
+	getProxyTask := routines.NewProxyTask(ctx, redis)
+	s.AddTask(getProxyTask.Task)
+
 	s.Start()
 }
