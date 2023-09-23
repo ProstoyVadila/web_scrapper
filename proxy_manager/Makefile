@@ -8,5 +8,7 @@ build:
 tests:
 	@go test -v -cover ./...
 
+mock:
+	bun mock/proxy.js
 
-.PHONY: run build tests
+.PHONY: run build tests mock
