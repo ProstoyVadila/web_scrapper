@@ -1,3 +1,5 @@
+use crate::extractor::Extractor;
+use std::collections::HashMap;
 
 mod extractor;
 
@@ -10,7 +12,12 @@ fn main() {
         <A HREF="http://www.google.com/">here</A>.
     </BODY></HTML>
     "##;
-    let xpath_extractor = extractor::XpathExtractor::new(data);
-    let res = xpath_extractor.extract("//H1");
-    println!("{}", res);
+    let exprs = HashMap::<&str, &str>::from([
+        ("title", "//TITLE"),
+        ("a", "//A/text()"),
+        ("h1", "//H1"),
+    ]);
+    let xpath_extractor = extractor::XpathExtractor::new(data, exprs);
+    let res = xpath_extractor.extract();
+    println!("{:?}", res);
 }
