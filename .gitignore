@@ -10,8 +10,9 @@ test-compose.yaml
 
 # configs
 
-# Scrapper and Rust
+# Rust
 scrapper/target
+extractor/target
 
 # Scheduler and Python
 __pycache__/
