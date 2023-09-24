@@ -18,7 +18,7 @@ type Scheduler struct {
 	Cron       *gocron.Scheduler
 	Store      *store.Redis
 	Config     *config.Config
-	localStore map[string]*models.TemplateTask
+	localStore map[string]*models.Task
 	Ctx        context.Context
 }
 
@@ -29,7 +29,7 @@ func New(conf *config.Config, store *store.Redis, ctx context.Context) *Schedule
 		Cron:       cron,
 		Store:      store,
 		Config:     conf,
-		localStore: make(map[string]*models.TemplateTask),
+		localStore: make(map[string]*models.Task),
 		Ctx:        ctx,
 	}
 }
@@ -45,17 +45,17 @@ func (s *Scheduler) Stop() {
 	s.Cron.Stop()
 }
 
-func (s *Scheduler) setTask(t *models.TemplateTask) {
+func (s *Scheduler) setTask(t *models.Task) {
 	log.Info().Msgf("Setting task: %s", t.Name)
 	s.Cron.Every(t.Interval).Name(t.Name).Do(func() { t.Func() })
 }
 
-func (s *Scheduler) AddTask(t *models.TemplateTask) {
+func (s *Scheduler) AddTask(t *models.Task) {
 	s.setTask(t)
 	s.localStore[t.Name] = t
 }
 
-func (s *Scheduler) AddTasks(tasks []*models.TemplateTask) {
+func (s *Scheduler) AddTasks(tasks []*models.Task) {
 	for _, t := range tasks {
 		s.AddTask(t)
 	}

@@ -31,15 +31,33 @@ func NewRedis(ctx context.Context, conf *config.Config) *Redis {
 	}
 	redisClient := redis.NewClient(redisOptions)
 
-	log.Debug().Msg("Configuring redis locker")
-	locker, err := redislock.NewRedisLocker(redisClient, redislock.WithTries(10))
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to create redis locker")
-	}
-	return &Redis{
+	redis := &Redis{
 		Client: redisClient,
-		Locker: &locker,
 		ctx:    ctx,
+	}
+	redis.setRedisLocker()
+	return redis
+}
+
+func (r *Redis) setRedisLocker() {
+	log.Info().Msg("Configuring redis locker")
+	for {
+		locker, err := redislock.NewRedisLocker(
+			r.Client,
+			redislock.WithTries(10),
+			redislock.WithDriftFactor(0.03),
+			redislock.WithRetryDelay(5*time.Second),
+			// redislock.WithExpiry(10*time.Second),
+			redislock.WithTimeoutFactor(0.5),
+		)
+		if err != nil {
+			log.Err(err).Msg("Failed to create redis locker. Trying again in 5 seconds")
+			time.Sleep(5 * time.Second)
+			continue
+		} else {
+			r.Locker = &locker
+			break
+		}
 	}
 }
 

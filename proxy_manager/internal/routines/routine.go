@@ -14,7 +14,7 @@ type Routine interface {
 }
 
 type ProxiesTask struct {
-	Task  *models.TemplateTask
+	Task  *models.Task
 	Proxy *models.Proxy
 	Req   *req.Request
 	redis *store.Redis
