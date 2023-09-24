@@ -24,6 +24,7 @@ impl Extractor for XpathExtractor {
 
 impl XpathExtractor {
     pub fn new(doc: &str, exprs: HashMap<&str, &str>) -> Self {
+        // TODO validate doc and logs
         let doc = html::parse(doc).expect("parse error");
         let mut invalid_exprs = HashMap::new();
         let exprs = exprs
