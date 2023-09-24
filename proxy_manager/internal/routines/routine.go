@@ -23,7 +23,7 @@ type ProxiesTask struct {
 func NewProxyTask(ctx context.Context, redis *store.Redis) *ProxiesTask {
 	request := req.New(ctx, "http://localhost:3000", new(models.Proxy))
 	proxyTask := &ProxiesTask{
-		Task:  models.NewTask("get_new_proxies", "2s"),
+		Task:  models.NewTask("get_new_proxies", "5s"),
 		Req:   request,
 		redis: redis,
 	}

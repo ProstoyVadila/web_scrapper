@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"math/rand"
 	"proxy_manager/internal/config"
 	"proxy_manager/pkg/models"
 	"time"
@@ -11,6 +12,11 @@ import (
 	redislock "github.com/go-co-op/gocron-redis-lock"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
+)
+
+const (
+	minRetryDelayMilliSec = 50
+	maxRetryDelayMilliSec = 250
 )
 
 type IdentityStore interface {
@@ -49,6 +55,7 @@ func (r *Redis) setRedisLocker() {
 			redislock.WithRetryDelay(5*time.Second),
 			// redislock.WithExpiry(10*time.Second),
 			redislock.WithTimeoutFactor(0.5),
+			redislock.WithRetryDelayFunc(r.RetryDelayFunc),
 		)
 		if err != nil {
 			log.Err(err).Msg("Failed to create redis locker. Trying again in 5 seconds")
@@ -59,6 +66,13 @@ func (r *Redis) setRedisLocker() {
 			break
 		}
 	}
+}
+
+func (r *Redis) RetryDelayFunc(tries int) time.Duration {
+	// TODO: add alerting
+	delay := time.Duration(rand.Intn(maxRetryDelayMilliSec-minRetryDelayMilliSec)+minRetryDelayMilliSec) * time.Millisecond
+	log.Info().Msgf("Retry to connect to Redis. Tries: %d. Delay: %s", tries, delay.String())
+	return delay
 }
 
 func (r *Redis) Close() error {
