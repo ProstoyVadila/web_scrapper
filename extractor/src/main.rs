@@ -1,4 +1,5 @@
-use skyscraper::{xpath, html};
+
+mod extractor;
 
 fn main() {
     let data = r##"
@@ -9,11 +10,7 @@ fn main() {
         <A HREF="http://www.google.com/">here</A>.
     </BODY></HTML>
     "##;
-    let document = html::parse(data).expect("parse error");
-    let expr = xpath::parse("//H1").expect("parse error");
-    let res = expr.apply(&document).expect("apply error");
-    assert_eq!(res.len(), 1);
-    let text = res[0].get_text(&document).expect("get_text error");
-    assert_eq!(text, "301 Moved");
-    println!("text: {}", text);
+    let xpath_extractor = extractor::XpathExtractor::new(data);
+    let res = xpath_extractor.extract("//H1");
+    println!("{}", res);
 }
