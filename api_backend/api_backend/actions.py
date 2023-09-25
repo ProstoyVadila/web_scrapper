@@ -1,8 +1,8 @@
 import orjson
 from asyncpg.exceptions import UniqueViolationError
 from fastapi import HTTPException
-from loguru import logger
 
+from config import logger
 from models import SiteIn, SiteOut, convert_site_in, TestSite, into_borsh
 from broker import rabbit_broker, URLS_TO_CRAWL_EXCHANGE, URLS_TO_CRAWL_QUEUE
 from database import Database, save_site_in_transaction
