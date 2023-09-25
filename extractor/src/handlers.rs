@@ -6,8 +6,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct MessageIn {
+    pub event_id: String,
+    pub user_id: String,
     pub html: String,
     pub xpaths: HashMap<String, String>,
+    pub is_pagination: bool,
+    pub refresh_interval: u64,
 }
 
 #[derive(Serialize, Deserialize)]

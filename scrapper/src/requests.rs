@@ -1,4 +1,5 @@
-use futures::{stream, StreamExt};
+// use futures_lite::stream::{self, StreamExt};
+use futures::stream;
 use reqwest::Client;
 
 pub struct Requests {
@@ -22,20 +23,20 @@ impl Requests {
         Ok(resp)
     }
 
-    pub async fn get_from_urls(&self, urls: Vec<&str>) -> Vec<Result<String, reqwest::Error>> {
-        let bodies = stream::iter(urls)
-            .map(|url| {
-                let client = &self.client;
-                async move {
-                    let body = client.get(url).send().await?.text().await;
-                    body
-                }
-            })
-            .buffer_unordered(2);
+    // pub async fn get_from_urls(&self, urls: Vec<&str>) -> Vec<Result<String, reqwest::Error>> {
+    //     let bodies = stream::iter(urls)
+    //         .map(|url| {
+    //             let client = &self.client;
+    //             async move {
+    //                 let body = client.get(url).send().await?.text().await;
+    //                 body
+    //             }
+    //         })
+    //         .buffer_unordered(2);
 
-        let bodies = bodies
-            .collect::<Vec<Result<String, reqwest::Error>>>()
-            .await;
-        bodies
-    }
+    //     let bodies = bodies
+    //         .collect::<Vec<Result<String, reqwest::Error>>>()
+    //         .await;
+    //     bodies
+    // }
 }

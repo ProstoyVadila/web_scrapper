@@ -59,8 +59,8 @@ services:
       rabbit:
         condition: service_healthy
     environment:
-      RABBITMQ_ADMIN_USER: "admin"
-      RABBITMQ_ADMIN_PASSWORD: "password"
+      RABBITMQ_ADMIN_USER: "guest"
+      RABBITMQ_ADMIN_PASSWORD: "guest"
       RABBITMQ_VHOST: "/"
       RABBITMQ_HOST: "rabbit"
       RABBITMQ_PORT: 5672
@@ -75,11 +75,9 @@ services:
     depends_on:
       rabbit:
         condition: service_healthy
-      scrapper:
-        condition: service_healthy
     environment:
-      RABBITMQ_ADMIN_USER: "admin"
-      RABBITMQ_ADMIN_PASSWORD: "password"
+      RABBITMQ_ADMIN_USER: "guest"
+      RABBITMQ_ADMIN_PASSWORD: "guest"
       RABBITMQ_VHOST: "/"
       RABBITMQ_HOST: "rabbit"
       RABBITMQ_PORT: 5672

@@ -1,5 +1,5 @@
 extern crate dotenv;
-extern crate pretty_env_logger;
+extern crate log;
 
 use envconfig::Envconfig;
 use std::env;
@@ -45,13 +45,13 @@ pub fn get() -> Config {
         use dotenv::dotenv;
 
         dotenv().ok();
-        info!("Local Run mode enabled")
+        log::info!("Local Run mode enabled")
     }
 
     let config = match Config::init_from_env() {
         Ok(config) => config,
         Err(e) => panic!("Error loading config: {}", e),
     };
-    debug!("rabbit url: {}", config.rabbit.get_url());
+    log::debug!("rabbit url: {}", config.rabbit.get_url());
     config
 }

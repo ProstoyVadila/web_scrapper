@@ -19,31 +19,36 @@ async def process_new_site(site: SiteIn, db: Database):
         logger.info("add site %s to queue", site.url)
         # data = TestSite(url=site.url).dict()
         # data = into_borsh(data)
-
-        # await rabbit_broker.publish(
-        #     exchange=URLS_TO_CRAWL_EXCHANGE,
-        #     queue=URLS_TO_CRAWL_QUEUE,
-        #     message=data,
-        #     persist=True,
-        # )
-
-        # Tets extractor TODO: remove this after testing
         data = orjson.dumps(
             {
-                "html": "<kek>kek</kek>",
+                "event_id": site.id,
                 "url": site.url,
+                "user_id": "1",
+                "is_pagination": False,
+                "refresh_interval": 3600,
                 "xpaths": {
-                    "title": "//title/text()",
-                    "description": "//meta[@name='description']/@content",
-                }
+                    "title": "//h1/span",
+                    "description": "//div[@class='hatnote navigation-not-searchable']",
+                },
             }
         )
+
         await rabbit_broker.publish(
-            exchange="extractor_in",
-            queue="extractor_in",
+            # exchange=URLS_TO_CRAWL_EXCHANGE,
+            # queue=URLS_TO_CRAWL_QUEUE,
+            exchange="scrapper_in",
+            queue="scrapper_in",
             message=data,
             persist=True,
         )
+
+        # Tets extractor TODO: remove this after testing
+        # await rabbit_broker.publish(
+        #     exchange="extractor_in",
+        #     queue="extractor_in",
+        #     message=data,
+        #     persist=True,
+        # )
         return res
 
     except UniqueViolationError as exc:
