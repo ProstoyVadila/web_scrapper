@@ -28,9 +28,36 @@ impl ConfigRabbitMQ {
 }
 
 #[derive(Debug, Envconfig)]
+pub struct ConfigPostgres {
+    #[envconfig(from = "DATABASE_URL")]
+    pub url: String,
+    #[envconfig(from = "POSTGRES_USER")]
+    pub user: String,
+    #[envconfig(from = "POSTGRES_PASSWORD")]
+    pub password: String,
+    #[envconfig(from = "POSTGRES_HOST")]
+    pub host: String,
+    #[envconfig(from = "POSTGRES_PORT")]
+    pub port: u16,
+    #[envconfig(from = "POSTGRES_DB")]
+    pub db: String,
+}
+
+impl ConfigPostgres {
+    pub fn get_url(&self) -> String {
+        format!(
+            "postgres://{}:{}@{}:{}/{}",
+            self.user, self.password, self.host, self.port, self.db
+        )
+    }
+}
+
+#[derive(Debug, Envconfig)]
 pub struct Config {
     #[envconfig(nested = true)]
     pub rabbit: ConfigRabbitMQ,
+    #[envconfig(nested = true)]
+    pub postgres: ConfigPostgres,
     #[envconfig(from = "LOG_LEVEL")]
     pub log_level: String,
 }

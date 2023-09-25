@@ -1,4 +1,5 @@
 use crate::extractor::{Extractor, XpathExtractor};
+use crate::database::Database;
 
 use std::{collections::HashMap, error::Error};
 
