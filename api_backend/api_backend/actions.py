@@ -26,6 +26,8 @@ async def process_new_site(site: SiteIn, db: Database):
         #     message=data,
         #     persist=True,
         # )
+
+        # Tets extractor TODO: remove this after testing
         data = orjson.dumps(
             {
                 "html": "<kek>kek</kek>",
