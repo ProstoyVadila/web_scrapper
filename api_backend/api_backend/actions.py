@@ -17,16 +17,31 @@ async def process_new_site(site: SiteIn, db: Database):
                 raise UniqueViolationError
 
         logger.info("add site %s to queue", site.url)
-        data = TestSite(url=site.url).dict()
-        data = into_borsh(data)
+        # data = TestSite(url=site.url).dict()
+        # data = into_borsh(data)
 
+        # await rabbit_broker.publish(
+        #     exchange=URLS_TO_CRAWL_EXCHANGE,
+        #     queue=URLS_TO_CRAWL_QUEUE,
+        #     message=data,
+        #     persist=True,
+        # )
+        data = orjson.dumps(
+            {
+                "html": "<kek>kek</kek>",
+                "url": site.url,
+                "xpaths": {
+                    "title": "//title/text()",
+                    "description": "//meta[@name='description']/@content",
+                }
+            }
+        )
         await rabbit_broker.publish(
-            exchange=URLS_TO_CRAWL_EXCHANGE,
-            queue=URLS_TO_CRAWL_QUEUE,
+            exchange="extractor_in",
+            queue="extractor_in",
             message=data,
             persist=True,
         )
-
         return res
 
     except UniqueViolationError as exc:

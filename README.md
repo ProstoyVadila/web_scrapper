@@ -41,3 +41,7 @@ This service is responsible for parsing the data. It is written in Python. It pa
 ### Proxy Manager
 
 This service is responsible for managing the proxies for Scrapper. It is written in Go using Gin framework. It gets the proxies from resource and manages thier availability.
+
+### Database
+
+figure out what to use (postgres, mongo, scylladb)
