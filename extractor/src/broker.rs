@@ -5,7 +5,7 @@ use crate::config;
 use futures_lite::stream::StreamExt;
 use lapin::{
     options::*, publisher_confirm::Confirmation, types::FieldTable, BasicProperties, Connection,
-    ConnectionProperties, Result, ExchangeKind,
+    ConnectionProperties, Result, ExchangeKind, protocol::exchange,
 };
 
 
@@ -46,87 +46,38 @@ impl Broker {
 
 
     pub async fn start(&self) -> Result<()> {
-        self.declare().await?;
+        self.declare_all().await?;
         self.consume().await?;
         Ok(())
     }
 
-    // async fn connect(&self) -> Result<()> {
-    //     let conn = Connection::connect(
-    //         &conf.get_url(),
-    //         ConnectionProperties::default(),
-    //     )
-    //     .await?;
-    //     let channel = self.conn.create_channel().await?;
-    //     Ok(())
-    // }
+    async fn declare_all(&self) -> Result<()> {
+        self.declare(&self.exchange_in, &self.queue_in).await?;
+        self.declare(&self.exchange_out, &self.queue_out).await?;
+        Ok(())
+    }
 
-    // async fn create_channel(&self) -> Result<()> {
-    //     let channel = self.conn.create_channel().await?;
-    //     Ok(())
-    // }
-
-    // fn retry(&self) {
-    //     std::thread::sleep(std::time::Duration::from_secs(5));
-    //     log::info!("Retrying connection");
-    //     self.try_connect();
-    // }
-
-    // fn try_connect(&self) {
-    //     async_global_executor::spawn(async move {
-    //         if Err(e) = self.connect().await {
-    //             log::error!("Error connecting to RabbitMQ: {}", e);
-    //             self.retry();
-    //         }
-    //     })
-    // }
-
-
-    pub async fn declare(&self) -> Result<()> {
-        self.channel
-            .queue_declare(
-                &self.queue_in,
-                QueueDeclareOptions::default(),
-                FieldTable::default(),
-            )
-            .await?;
-        self.channel
-            .queue_declare(
-                &self.queue_out,
-                QueueDeclareOptions::default(),
-                FieldTable::default(),
-            )
-            .await?;
+        async fn declare(&self, exchange: &str, queue: &str) -> Result<()> {
         self.channel
             .exchange_declare(
-                &self.exchange_in,
+                exchange,
                 ExchangeKind::Direct,
                 ExchangeDeclareOptions::default(),
                 FieldTable::default(),
             )
             .await?;
         self.channel
-            .exchange_declare(
-                &self.exchange_out,
-                ExchangeKind::Direct,
-                ExchangeDeclareOptions::default(),
+            .queue_declare(
+                queue,
+                QueueDeclareOptions::default(),
                 FieldTable::default(),
             )
             .await?;
         self.channel
             .queue_bind(
-                &self.queue_in,
-                &self.exchange_in,
-                &self.routing_key,
-                QueueBindOptions::default(),
-                FieldTable::default(),
-            )
-            .await?;
-        self.channel
-            .queue_bind(
-                &self.queue_out,
-                &self.exchange_out,
-                &self.routing_key,
+                queue,
+                exchange,
+                queue,
                 QueueBindOptions::default(),
                 FieldTable::default(),
             )
@@ -160,6 +111,23 @@ impl Broker {
                 }
             }
         }
+        Ok(())
+    }
+
+        #[allow(dead_code)]
+        async fn publish(&self, data: &[u8]) -> Result<()> {
+        let confirm = self
+            .channel
+            .basic_publish(
+                &self.exchange_out,
+                &self.queue_out,
+                BasicPublishOptions::default(),
+                data,
+                BasicProperties::default(),
+            )
+            .await?
+            .await?;
+        assert_eq!(confirm, Confirmation::NotRequested);
         Ok(())
     }
 }
