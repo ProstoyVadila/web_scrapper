@@ -67,3 +67,22 @@ services:
       REDIS_SSL: "false"
       LOG_LEVEL: "DEBUG"
       RUST_LOG: "trace"
+
+  extractor:
+    build:
+      context: .
+      dockerfile: extractor/Dockerfile
+    depends_on:
+      rabbit:
+        condition: service_healthy
+      scrapper:
+        condition: service_healthy
+    environment:
+      RABBITMQ_ADMIN_USER: "admin"
+      RABBITMQ_ADMIN_PASSWORD: "password"
+      RABBITMQ_VHOST: "/"
+      RABBITMQ_HOST: "rabbit"
+      RABBITMQ_PORT: 5672
+      REDIS_SSL: "false"
+      LOG_LEVEL: "DEBUG"
+      RUST_LOG: "trace"

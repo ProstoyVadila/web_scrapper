@@ -103,7 +103,6 @@ dependencies = [
  "blocking",
  "futures-lite",
  "once_cell",
- "tokio",
 ]
 
 [[package]]
@@ -468,7 +467,6 @@ dependencies = [
 name = "extractor"
 version = "0.1.0"
 dependencies = [
- "async-global-executor",
  "dotenv",
  "envconfig",
  "futures-lite",
