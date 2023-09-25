@@ -475,6 +475,8 @@ dependencies = [
  "json_env_logger",
  "lapin",
  "log",
+ "serde",
+ "serde_json",
  "skyscraper",
  "tokio",
 ]

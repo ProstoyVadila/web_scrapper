@@ -1,13 +1,13 @@
 extern crate log;
 
 use crate::config;
+use crate::handlers;
 
 use futures_lite::stream::StreamExt;
 use lapin::{
-    options::*, publisher_confirm::Confirmation, types::FieldTable, BasicProperties, Connection,
-    ConnectionProperties, Result, ExchangeKind, protocol::exchange,
+    options::*, protocol::exchange, publisher_confirm::Confirmation, types::FieldTable,
+    BasicProperties, Connection, ConnectionProperties, ExchangeKind, Result,
 };
-
 
 pub struct Broker {
     conn: Connection,
@@ -21,11 +21,7 @@ pub struct Broker {
 
 impl Broker {
     pub async fn new(conf: config::ConfigRabbitMQ) -> Result<Broker> {
-        let conn = Connection::connect(
-            &conf.get_url(),
-            ConnectionProperties::default(),
-        )
-        .await?;
+        let conn = Connection::connect(&conf.get_url(), ConnectionProperties::default()).await?;
         let channel = conn.create_channel().await?;
 
         let queue_in = "extractor_in".to_string();
@@ -44,7 +40,6 @@ impl Broker {
         })
     }
 
-
     pub async fn start(&self) -> Result<()> {
         self.declare_all().await?;
         self.consume().await?;
@@ -57,7 +52,8 @@ impl Broker {
         Ok(())
     }
 
-        async fn declare(&self, exchange: &str, queue: &str) -> Result<()> {
+    async fn declare(&self, exchange: &str, queue: &str) -> Result<()> {
+        let routing_key = queue;
         self.channel
             .exchange_declare(
                 exchange,
@@ -67,17 +63,13 @@ impl Broker {
             )
             .await?;
         self.channel
-            .queue_declare(
-                queue,
-                QueueDeclareOptions::default(),
-                FieldTable::default(),
-            )
+            .queue_declare(queue, QueueDeclareOptions::default(), FieldTable::default())
             .await?;
         self.channel
             .queue_bind(
                 queue,
                 exchange,
-                queue,
+                routing_key,
                 QueueBindOptions::default(),
                 FieldTable::default(),
             )
@@ -99,11 +91,21 @@ impl Broker {
         while let Some(delivery) = consumer.next().await {
             match delivery {
                 Ok(delivery) => {
-                    log::info!(" [x] Received {}", std::str::from_utf8(&delivery.data).unwrap());
+                    let msg_in = std::str::from_utf8(&delivery.data).unwrap();
+                    log::info!(" [x] Received {}", msg_in);
+                    let msg_out = match handlers::handle_parse_event(msg_in).await {
+                        Ok(msg_out) => msg_out,
+                        Err(e) => {
+                            log::error!("Error in handle_parse_event: {}", e);
+                            continue;
+                        }
+                    };
+                    let msg_out = msg_out.as_slice();
+                    self.publish(&msg_out).await?;
                     self.channel
                         .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
                         .await?;
-                },
+                }
 
                 Err(error) => {
                     log::error!("Error caught in consumer: {}", error);
@@ -114,8 +116,7 @@ impl Broker {
         Ok(())
     }
 
-        #[allow(dead_code)]
-        async fn publish(&self, data: &[u8]) -> Result<()> {
+    async fn publish(&self, data: &[u8]) -> Result<()> {
         let confirm = self
             .channel
             .basic_publish(

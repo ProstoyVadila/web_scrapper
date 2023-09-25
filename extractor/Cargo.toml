@@ -15,3 +15,5 @@ tokio = { versoin = "1.32.0", features = ["full"] }
 lapin = "2.3.1"
 futures-lite = "1.13.0"
 async-global-executor = { version = "2.3.1", features = ["tokio"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

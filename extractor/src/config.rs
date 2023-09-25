@@ -1,8 +1,8 @@
 extern crate dotenv;
 
+use envconfig::Envconfig;
 use log;
 use std::env;
-use envconfig::Envconfig;
 
 #[derive(Debug, Envconfig)]
 pub struct ConfigRabbitMQ {
