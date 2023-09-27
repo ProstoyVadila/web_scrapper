@@ -1,12 +1,11 @@
-use std::time::Duration;
-
 use crate::config;
 
-use sqlx::postgres::{PgListener, PgPoolOptions};
+use sqlx::postgres::PgPoolOptions;
 
 const MAX_POOL_SIZE: u32 = 10;
 
 pub struct Database {
+    #[allow(dead_code)]
     pool: sqlx::PgPool,
 }
 

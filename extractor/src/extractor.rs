@@ -1,6 +1,8 @@
 use std::{collections::HashMap, sync::Arc};
 
+use log;
 use skyscraper::{html, xpath};
+use tokio::sync::mpsc;
 
 pub struct XpathExtractor {
     pub doc: html::HtmlDocument,
@@ -18,7 +20,7 @@ impl XpathExtractor {
             .filter_map(|(k, v)| match xpath::parse(v) {
                 Ok(expr) => Some((k.to_string(), expr)),
                 Err(e) => {
-                    println!("invalid xpath: {}, err: {}", k, e);
+                    log::error!("invalid xpath: {}, err: {}", k, e);
                     invalid_exprs.insert(k.to_string(), e.to_string());
                     None
                 }
@@ -35,7 +37,7 @@ impl XpathExtractor {
         let mut values = HashMap::new();
         let doc = Arc::new(self.doc.clone());
 
-        let (tx, mut rx) = tokio::sync::mpsc::channel(self.exprs.len());
+        let (tx, mut rx) = mpsc::channel(self.exprs.len());
 
         for (field, expr) in self.exprs.clone() {
             let tx = tx.clone();
@@ -53,6 +55,7 @@ impl XpathExtractor {
         values
     }
 
+    #[allow(dead_code)]
     pub async fn extract_one(&self, expr: xpath::Xpath) -> Option<String> {
         parse(&self.doc, expr)
     }
@@ -62,12 +65,12 @@ fn parse(doc: &html::HtmlDocument, expr: xpath::Xpath) -> Option<String> {
     let results = match expr.apply(doc) {
         Ok(v) => v,
         Err(e) => {
-            println!("apply error: {}", e);
+            log::error!("apply error: {}", e);
             return None;
         }
     };
     if results.is_empty() {
-        println!("no result found for xpath");
+        log::error!("no result found for xpath");
         return None;
     }
     results[0].get_text(doc)

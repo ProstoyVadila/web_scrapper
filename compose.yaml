@@ -84,3 +84,8 @@ services:
       REDIS_SSL: "false"
       LOG_LEVEL: "DEBUG"
       RUST_LOG: "trace"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "scrapped_data"
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: 5432

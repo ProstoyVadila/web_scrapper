@@ -4,7 +4,7 @@ use envconfig::Envconfig;
 use log;
 use std::env;
 
-#[derive(Debug, Envconfig)]
+#[derive(Debug, Envconfig, Clone)]
 pub struct ConfigRabbitMQ {
     #[envconfig(from = "RABBITMQ_ADMIN_USER")]
     pub user: String,
@@ -27,10 +27,8 @@ impl ConfigRabbitMQ {
     }
 }
 
-#[derive(Debug, Envconfig)]
+#[derive(Debug, Envconfig, Clone)]
 pub struct ConfigPostgres {
-    #[envconfig(from = "DATABASE_URL")]
-    pub url: String,
     #[envconfig(from = "POSTGRES_USER")]
     pub user: String,
     #[envconfig(from = "POSTGRES_PASSWORD")]
@@ -52,7 +50,7 @@ impl ConfigPostgres {
     }
 }
 
-#[derive(Debug, Envconfig)]
+#[derive(Debug, Envconfig, Clone)]
 pub struct Config {
     #[envconfig(nested = true)]
     pub rabbit: ConfigRabbitMQ,
