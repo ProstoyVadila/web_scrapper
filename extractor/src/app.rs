@@ -5,6 +5,7 @@ use crate::{
 use std::sync::Arc;
 
 use futures_lite::stream::StreamExt;
+use lapin::message::Delivery;
 use log;
 
 
@@ -46,11 +47,7 @@ impl App {
             let app = Arc::clone(&self);
             match delivery {
                 Ok(delivery) => {
-                    app.handle_message(delivery.data).await;
-                    self.broker
-                        .ack(delivery.delivery_tag)
-                        .await
-                        .expect("ack error");
+                    app.handle_message(delivery).await;
                 }
                 Err(e) => {
                     log::error!("Error receiving message: {:?}", e);
@@ -59,9 +56,13 @@ impl App {
         }
     }
 
-    async fn handle_message(self: Arc<Self>, data: Vec<u8>) {
-        let msg_in = serde_json::from_slice::<models::MessageIn>(data.as_slice())
+    async fn handle_message(self: Arc<Self>, delivery: Delivery) {
+        let msg_in = serde_json::from_slice::<models::MessageIn>(delivery.data.as_slice())
             .expect("deserialize error in handle_message");
+        self.broker
+            .ack(delivery.delivery_tag)
+            .await
+            .expect("ack error");
         log::info!("Received message: {}", msg_in);
     
         log::info!("Spawning task to parse and store");
