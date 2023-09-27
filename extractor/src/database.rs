@@ -2,8 +2,7 @@ use std::time::Duration;
 
 use crate::config;
 
-use sqlx::postgres::{PgPoolOptions, PgListener};
-
+use sqlx::postgres::{PgListener, PgPoolOptions};
 
 const MAX_POOL_SIZE: u32 = 10;
 

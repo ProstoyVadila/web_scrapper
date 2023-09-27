@@ -1,5 +1,5 @@
-use crate::extractor::{Extractor, XpathExtractor};
 use crate::database::Database;
+use crate::extractor::XpathExtractor;
 
 use std::{collections::HashMap, error::Error};
 
@@ -26,7 +26,7 @@ pub async fn handle_parse_event(data: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     let msg_in =
         serde_json::from_str::<MessageIn>(data).expect("deserialize error in handle_parse_event");
     let extractor = XpathExtractor::new(msg_in.html.clone(), msg_in.xpaths);
-    let res = extractor.extract();
+    let res = extractor.extract().await;
     let msg_out = MessageOut {
         html: msg_in.html,
         values: res,

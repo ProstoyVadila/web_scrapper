@@ -6,9 +6,9 @@ use tokio;
 
 mod broker;
 mod config;
+mod database;
 mod extractor;
 mod handlers;
-mod database;
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 8)]
 async fn main() -> Result<(), Box<dyn Error>> {

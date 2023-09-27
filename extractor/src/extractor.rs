@@ -1,29 +1,11 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use skyscraper::{html, xpath};
-
-pub trait Extractor {
-    fn extract(&self) -> HashMap<String, String>;
-}
 
 pub struct XpathExtractor {
     pub doc: html::HtmlDocument,
     pub exprs: HashMap<String, xpath::Xpath>,
     pub invalid_exprs: HashMap<String, String>,
-}
-
-impl Extractor for XpathExtractor {
-    fn extract(&self) -> HashMap<String, String> {
-        self.exprs
-            .iter()
-            .map(|(k, v)| {
-                (
-                    k.clone(),
-                    self.extract_one(v.clone()).unwrap_or("".to_string()),
-                )
-            })
-            .collect()
-    }
 }
 
 impl XpathExtractor {
@@ -49,18 +31,44 @@ impl XpathExtractor {
         }
     }
 
-    fn extract_one(&self, expr: xpath::Xpath) -> Option<String> {
-        let results = match expr.apply(&self.doc) {
-            Ok(v) => v,
-            Err(e) => {
-                println!("apply error: {}", e);
-                return None;
-            }
-        };
-        if results.is_empty() {
-            println!("no result found for xpath");
+    pub async fn extract(&self) -> HashMap<String, String> {
+        let mut values = HashMap::new();
+        let doc = Arc::new(self.doc.clone());
+
+        let (tx, mut rx) = tokio::sync::mpsc::channel(self.exprs.len());
+
+        for (field, expr) in self.exprs.clone() {
+            let tx = tx.clone();
+            let doc = Arc::clone(&doc);
+            tokio::spawn(async move {
+                let res = parse(&doc, expr.clone()).unwrap_or("".to_string());
+                tx.send((field, res)).await.unwrap();
+            });
+        }
+        drop(tx);
+
+        while let Some((field, res)) = rx.recv().await {
+            values.insert(field.to_string(), res);
+        }
+        values
+    }
+
+    pub async fn extract_one(&self, expr: xpath::Xpath) -> Option<String> {
+        parse(&self.doc, expr)
+    }
+}
+
+fn parse(doc: &html::HtmlDocument, expr: xpath::Xpath) -> Option<String> {
+    let results = match expr.apply(doc) {
+        Ok(v) => v,
+        Err(e) => {
+            println!("apply error: {}", e);
             return None;
         }
-        results[0].get_text(&self.doc)
+    };
+    if results.is_empty() {
+        println!("no result found for xpath");
+        return None;
     }
+    results[0].get_text(doc)
 }
