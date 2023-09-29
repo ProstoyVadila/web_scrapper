@@ -7,7 +7,7 @@ import orjson
 from pydantic import BaseModel, Field, AnyHttpUrl
 import borsh
 
-from utils import is_valid_uuid
+from api_backend.utils import is_valid_uuid
 
 
 class ParseStatus(str, Enum):

@@ -2,10 +2,14 @@ import orjson
 from asyncpg.exceptions import UniqueViolationError
 from fastapi import HTTPException
 
-from config import logger
-from models import SiteIn, SiteOut, convert_site_in, TestSite, into_borsh
-from broker import rabbit_broker, URLS_TO_CRAWL_EXCHANGE, URLS_TO_CRAWL_QUEUE
-from database import Database, save_site_in_transaction
+from api_backend.config import logger
+from api_backend.models import SiteIn, SiteOut, convert_site_in, TestSite, into_borsh
+from api_backend.broker import (
+    rabbit_broker,
+    URLS_TO_CRAWL_EXCHANGE,
+    URLS_TO_CRAWL_QUEUE,
+)
+from api_backend.database import Database, save_site_in_transaction
 
 
 async def process_new_site(site: SiteIn, db: Database):

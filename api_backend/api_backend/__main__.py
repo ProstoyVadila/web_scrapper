@@ -2,22 +2,7 @@ import os
 import sys
 
 import uvicorn
-from config import logger
-
-
-# TODO: fix logger and set logger to uvicorn
-def init_logger():
-    log_level = os.environ.get("LOG_LEVEL")
-    log_level = log_level if log_level else "INFO"
-    kek = logger.add(
-        sys.stderr,
-        format="{time} {level} {message}",
-        filter="my_module",
-        level=log_level,
-        backtrace=True,
-        diagnose=True,
-        serialize=True,
-    )
+from api_backend.config import init_logger
 
 
 def main():

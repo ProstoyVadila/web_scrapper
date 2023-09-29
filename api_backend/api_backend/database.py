@@ -2,8 +2,8 @@ import asyncpg
 import orjson
 from loguru import logger
 
-from config import PostgresConfig
-from models import SiteModel, PageModel, SiteIn, convert_site_in
+from api_backend.config import PostgresConfig
+from api_backend.models import SiteModel, PageModel, SiteIn, convert_site_in
 
 
 class Database:

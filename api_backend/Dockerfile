@@ -72,7 +72,7 @@ RUN poetry install
 WORKDIR /app
 
 EXPOSE 8000
-CMD ["uvicorn", "--reload", "app:app"]
+CMD ["uvicorn", "--reload", "api_backend.app:app"]
 
 
 # `production` image used for runtime
@@ -81,4 +81,4 @@ ENV FASTAPI_ENV=production
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 COPY $PROJECT/ /app/
 WORKDIR /app
-CMD ["uvicorn", "app:app", "--workers", "8", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "api_backend.app:app", "--workers", "8", "--host", "0.0.0.0", "--port", "8000"]
