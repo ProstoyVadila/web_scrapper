@@ -2,7 +2,7 @@ import orjson
 from asyncpg.exceptions import UniqueViolationError
 from fastapi import HTTPException
 
-from api_backend.config import logger
+from api_backend.logger import logger
 from api_backend.models import SiteIn, SiteOut, convert_site_in, TestSite, into_borsh
 from api_backend.broker import (
     rabbit_broker,

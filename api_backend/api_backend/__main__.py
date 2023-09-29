@@ -2,11 +2,9 @@ import os
 import sys
 
 import uvicorn
-from api_backend.config import init_logger
 
 
 def main():
-    init_logger()
     uvicorn.run(
         "app:app",
         host="0.0.0.0",

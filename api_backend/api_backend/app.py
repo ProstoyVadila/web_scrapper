@@ -1,11 +1,10 @@
-from loguru import logger
 from fastapi import FastAPI, BackgroundTasks, Request, APIRouter, HTTPException
 
 from api_backend.models import SiteIn
 from api_backend.broker import rabbit_broker, init_broker
 from api_backend.actions import process_new_site, process_new_sites
 from api_backend.database import db
-from api_backend.config import init_logger
+from api_backend.logger import logger
 
 router = APIRouter()
 app = FastAPI(
@@ -18,7 +17,6 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def on_startup():
-    init_logger()
     logger.info("Starting api backend's worker")
     await db.connect()
     app.state.db = db

@@ -16,6 +16,7 @@ extractor/target
 
 # Scheduler and Python
 __pycache__/
+logs/
 
 # Proxy_manager and Go
 proxy_manager/bin

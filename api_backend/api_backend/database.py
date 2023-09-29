@@ -1,7 +1,7 @@
 import asyncpg
 import orjson
-from loguru import logger
 
+from api_backend.logger import logger
 from api_backend.config import PostgresConfig
 from api_backend.models import SiteModel, PageModel, SiteIn, convert_site_in
 

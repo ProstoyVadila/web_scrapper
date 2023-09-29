@@ -5,6 +5,8 @@ from aiormq import AMQPConnectionError
 from propan import RabbitBroker
 
 from api_backend.config import get_config
+from api_backend.logger import logger
+
 
 AMQP_CONNECTION_ERROR_INTERVAL = 5  # seconds
 URLS_TO_CRAWL_EXCHANGE = "urls_to_crawl_exchange"
