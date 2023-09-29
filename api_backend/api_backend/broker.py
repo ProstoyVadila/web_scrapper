@@ -5,7 +5,7 @@ from aiormq import AMQPConnectionError
 from propan import RabbitBroker
 
 from api_backend.config import get_config
-from api_backend.logger import logger
+from api_backend.logger import log
 
 
 AMQP_CONNECTION_ERROR_INTERVAL = 5  # seconds
@@ -28,9 +28,9 @@ async def init_broker():
             await rabbit_broker.connect()
             break
         except AMQPConnectionError:
-            logger.error("RabbitMQ is not ready, retrying in 5 seconds")
+            log.error("RabbitMQ is not ready, retrying in 5 seconds")
             await asyncio.sleep(AMQP_CONNECTION_ERROR_INTERVAL)
         # TODO: fix this
         except KeyboardInterrupt:
-            logger.info("Stopping api backend")
+            log.info("Stopping api backend")
             break

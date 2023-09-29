@@ -1,7 +1,7 @@
 import asyncpg
 import orjson
 
-from api_backend.logger import logger
+from api_backend.logger import log
 from api_backend.config import PostgresConfig
 from api_backend.models import SiteModel, PageModel, SiteIn, convert_site_in
 
@@ -33,17 +33,17 @@ class Database:
                     command_timeout=self.COMMAND_TIMEOUT,
                     max_inactive_connection_lifetime=self.INACATIVE_LIFETIME,
                 )
-                logger.info("Connected to database")
+                log.info("Connected to database")
             except Exception as exc:
-                logger.exception(exc)
+                log.exception(exc)
 
     async def close(self):
         if self._con_pool:
             try:
                 await self._con_pool.close()
-                logger.info("Closed database connection")
+                log.info("Closed database connection")
             except Exception as exc:
-                logger.exception(exc)
+                log.exception(exc)
 
     async def _fetch_rows(self, query: str):
         if not self._con_pool:
@@ -52,7 +52,7 @@ class Database:
         try:
             return await self._con.fetch(query)
         except Exception as exc:
-            logger.exception(exc)
+            log.exception(exc)
         finally:
             await self._con_pool.release(self._con)
 
@@ -63,7 +63,7 @@ class Database:
         try:
             return await self._con.execute(query)
         except Exception as exc:
-            logger.exception(exc)
+            log.exception(exc)
         finally:
             await self._con_pool.release(self._con)
 
@@ -115,7 +115,7 @@ async def save_site(con, site: SiteModel) -> SiteModel:
         site.domain,
         site.created_at,
     )
-    logger.debug(f"saved site {site}")
+    log.debug(f"saved site {site}")
     return SiteModel(**dict(site))
 
 
@@ -140,7 +140,7 @@ async def save_page(con, page: PageModel) -> PageModel:
         page.last_refresh_at,
         page.xpaths_json,
     )
-    logger.debug(f"saved page {data}")
+    log.debug(f"saved page {data}")
     data = dict(data)
     data["xpaths"] = orjson.loads(data["xpaths"])
     return PageModel(**data)

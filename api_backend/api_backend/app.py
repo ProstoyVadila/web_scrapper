@@ -4,7 +4,7 @@ from api_backend.models import SiteIn
 from api_backend.broker import rabbit_broker, init_broker
 from api_backend.actions import process_new_site, process_new_sites
 from api_backend.database import db
-from api_backend.logger import logger
+from api_backend.logger import log
 
 router = APIRouter()
 app = FastAPI(
@@ -17,7 +17,7 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def on_startup():
-    logger.info("Starting api backend's worker")
+    log.info("Starting api backend's worker")
     await db.connect()
     app.state.db = db
     await init_broker()
@@ -25,7 +25,7 @@ async def on_startup():
 
 @app.on_event("shutdown")
 async def on_shutdown():
-    logger.info("Stopping api backend's worker")
+    log.info("Stopping api backend's worker")
     await rabbit_broker.close()
     if app.state.db:
         await app.state.db.close()
@@ -38,7 +38,7 @@ async def ping():
 
 @router.post("/site")
 async def add_site(req: Request, site: SiteIn):
-    logger.info("add site {} to queue".format(site.url))
+    log.info("add site {} to queue".format(site.url))
     site_out = await process_new_site(site, req.app.state.db)
     return site_out
 

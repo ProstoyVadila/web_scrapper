@@ -5,7 +5,7 @@ from loguru import logger
 from pydantic import Field, Extra, ValidationError, BaseSettings
 from dotenv import find_dotenv, load_dotenv
 
-from api_backend.logger import logger
+from api_backend.logger import log
 
 
 ROOT = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
@@ -56,11 +56,11 @@ class Config(BaseSettings):
 
 
 def get_config():
-    logger.info("Loading config")
+    log.info("Loading config")
     try:
         # return Config()
         config = Config()
-        logger.debug("amqp_url: {}".format(config.rabbitmq.amqp_url))
+        log.debug("amqp_url: {}".format(config.rabbitmq.amqp_url))
         return config
     except ValidationError as exc:
         print(repr(exc.errors()[0]["type"]))

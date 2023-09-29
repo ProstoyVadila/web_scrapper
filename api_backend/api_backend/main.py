@@ -2,7 +2,7 @@
 # import sys
 
 import uvicorn
-from api_backend.logger import logger
+from api_backend.logger import log
 
 
 # # TODO: fix logger and set logger to uvicorn
