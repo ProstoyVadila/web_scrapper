@@ -41,12 +41,14 @@ func (t *CheckProxyTask) Run() {
 	// 	log.Err(err).Msg("Failed to store identity in redis")
 	// 	return
 	// }
-	identity, err := t.redis.GetRandom()
+	identities, err := t.redis.GetRandom(10)
 	if err != nil {
 		log.Err(err).Msg("Failed to get random identity from redis")
 		return
 	}
-	log.Info().Msgf("Checking random identity: %s", identity.String())
+	for _, identity := range identities {
+		log.Info().Msgf("Checking random identity: %s", identity.String())
+	}
 	// request := req.New(context.Background(), identity.Resource.Url, new(models.Proxy))
 	// proxy, err := request.Get()
 	// if err != nil {

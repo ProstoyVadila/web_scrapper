@@ -134,8 +134,12 @@ func (r *Redis) GetRotten() {
 
 }
 
+func (r *Redis) randomFromKeys(keys []string) string {
+	return keys[rand.Intn(len(keys))]
+}
+
 // TODO: check if this is the best way to get random identity
-func (r *Redis) GetRandom() (*models.Identity, error) {
+func (r *Redis) GetRandom(numOfRecords int) ([]*models.Identity, error) {
 	log.Info().Msg("Getting random identity from redis")
 	keys, err := r.Client.Keys(r.ctx, "*").Result()
 	if err != nil {
@@ -144,15 +148,22 @@ func (r *Redis) GetRandom() (*models.Identity, error) {
 	}
 	if len(keys) == 0 {
 		log.Warn().Msg("No keys found in redis")
+		// TODO: return error
 		return nil, nil
 	}
-	key := keys[rand.Intn(len(keys))]
-	identity, err := r.Get(key)
-	if err != nil {
-		log.Err(err).Msg("Failed to get identity from redis")
-		return nil, err
+
+	var identities []*models.Identity
+	for i := 0; i < numOfRecords; i++ {
+		key := r.randomFromKeys(keys)
+		identity, err := r.Get(key)
+		if err != nil {
+			log.Err(err).Msg("Failed to get identity from redis")
+			return nil, err
+		}
+		identities = append(identities, identity)
 	}
-	return identity, nil
+
+	return identities, nil
 }
 
 func (r *Redis) Delete(key string) error {
