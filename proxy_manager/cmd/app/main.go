@@ -31,8 +31,8 @@ func main() {
 	s := scheduler.New(conf, redis, ctx)
 
 	log.Info().Msg("Adding tasks")
-	getProxyTask := routines.NewProxyTask(ctx, redis)
-	s.AddTask(getProxyTask.Task)
+	tasks := routines.GetAll(ctx, redis)
+	s.AddTasks(tasks)
 
 	s.Start()
 }

@@ -110,6 +110,51 @@ func (r *Redis) Get(key string) (*models.Identity, error) {
 	return identity, nil
 }
 
+// TODO: check if this is the best way to get all identities
+func (r *Redis) GetAll() ([]*models.Identity, error) {
+	log.Info().Msg("Getting all identities from redis")
+	keys, err := r.Client.Keys(r.ctx, "*").Result()
+	if err != nil {
+		log.Err(err).Msg("Failed to get keys from redis")
+		return nil, err
+	}
+	identities := make([]*models.Identity, 0)
+	for _, key := range keys {
+		identity, err := r.Get(key)
+		if err != nil {
+			log.Err(err).Msg("Failed to get identity from redis")
+			return nil, err
+		}
+		identities = append(identities, identity)
+	}
+	return identities, nil
+}
+
+func (r *Redis) GetRotten() {
+
+}
+
+// TODO: check if this is the best way to get random identity
+func (r *Redis) GetRandom() (*models.Identity, error) {
+	log.Info().Msg("Getting random identity from redis")
+	keys, err := r.Client.Keys(r.ctx, "*").Result()
+	if err != nil {
+		log.Err(err).Msg("Failed to get keys from redis")
+		return nil, err
+	}
+	if len(keys) == 0 {
+		log.Warn().Msg("No keys found in redis")
+		return nil, nil
+	}
+	key := keys[rand.Intn(len(keys))]
+	identity, err := r.Get(key)
+	if err != nil {
+		log.Err(err).Msg("Failed to get identity from redis")
+		return nil, err
+	}
+	return identity, nil
+}
+
 func (r *Redis) Delete(key string) error {
 	log.Info().Str("key", key).Msg("Deleting identity from redis")
 	return r.Client.Del(r.ctx, key).Err()

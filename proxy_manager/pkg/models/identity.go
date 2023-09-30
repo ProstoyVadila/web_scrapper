@@ -10,8 +10,9 @@ import (
 type Identity struct {
 	Proxy *Proxy
 	// Headers Headers
-	Hash   string
-	Expiry int64
+	Resource *Resource
+	Hash     string
+	Expiry   int64
 }
 
 type Headers struct {
